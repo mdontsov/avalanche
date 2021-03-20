@@ -1,0 +1,14 @@
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE roles (
+    id long IDENTITY PRIMARY KEY,
+    name VARCHAR(60) NOT NULL
+);
+
+CREATE TABLE users (
+    id long IDENTITY PRIMARY KEY,
+    username VARCHAR(120) UNIQUE NOT NULL,
+    password VARCHAR() NOT NULL,
+    role_id long REFERENCES roles(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
