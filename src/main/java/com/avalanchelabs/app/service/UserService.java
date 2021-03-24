@@ -4,39 +4,50 @@ import com.avalanchelabs.app.entity.Role;
 import com.avalanchelabs.app.entity.User;
 import com.avalanchelabs.app.repository.RoleRepo;
 import com.avalanchelabs.app.repository.UserRepo;
-import lombok.Data;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
-@Data
 public class UserService {
 
-    @Autowired
-    private RoleRepo roleRepo;
+    private final RoleRepo roleRepo;
+    private final UserRepo userRepo;
+    private final PasswordEncoder passwordEncoder;
+
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 
     @Autowired
-    private UserRepo userRepo;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public UserService(RoleRepo roleRepo, UserRepo userRepo, PasswordEncoder passwordEncoder) {
+    public UserService(@Lazy PasswordEncoder passwordEncoder, @Lazy RoleRepo roleRepo, @Lazy UserRepo userRepo) {
+        this.passwordEncoder = passwordEncoder;
         this.roleRepo = roleRepo;
         this.userRepo = userRepo;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public User saveUser(User user) {
-        Role userRole = roleRepo.findByRoleName("ROLE_USER");
+        Role userRole = roleRepo.findByName("ROLE_USER");
         user.setRole(userRole);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
 
     public User findByUserName(String userName) {
-        return userRepo.findByUserName(userName);
+        return userRepo.findByUsername(userName);
+    }
+
+    public List<User> findUsers() {
+        return userRepo.findAll();
+    }
+
+    public List<Role> findRoles() {
+        return roleRepo.findAll();
     }
 
     public User findByUserNameAndPassword(String userName, String password) {
