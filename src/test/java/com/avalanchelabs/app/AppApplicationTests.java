@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@SuppressWarnings("squid:S2699")
 class AppApplicationTests {
 
     @Autowired
@@ -27,11 +28,11 @@ class AppApplicationTests {
     void userRepositoryIsNotNull() {
 
         User user = new User();
-        user.setUsername("Maksim");
+        user.setUsername("Igor");
         user.setPassword("123456789");
         user.setRole(roleRepo.findByName("ROLE_ADMIN"));
         userRepo.save(user);
-        Assert.notNull(userRepo.findByUsername("Maksim"));
+        Assert.notNull(userRepo.findByUsername("Igor"));
     }
 
     @Test

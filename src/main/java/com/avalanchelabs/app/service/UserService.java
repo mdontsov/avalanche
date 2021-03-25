@@ -15,9 +15,9 @@ import java.util.List;
 @Service
 public class UserService {
 
+    private final PasswordEncoder passwordEncoder;
     private final RoleRepo roleRepo;
     private final UserRepo userRepo;
-    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public ModelMapper modelMapper() {
@@ -31,11 +31,11 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    public User saveUser(User user) {
+    public void saveUser(User user) {
         Role userRole = roleRepo.findByName("ROLE_USER");
         user.setRole(userRole);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepo.save(user);
+        userRepo.save(user);
     }
 
     public User findByUserName(String userName) {
@@ -52,10 +52,8 @@ public class UserService {
 
     public User findByUserNameAndPassword(String userName, String password) {
         User user = findByUserName(userName);
-        if (user != null) {
-            if (passwordEncoder.matches(password, user.getPassword())) {
-                return user;
-            }
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+            return user;
         }
         return null;
     }

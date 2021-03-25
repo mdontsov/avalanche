@@ -1,13 +1,15 @@
 package com.avalanchelabs.app.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class RoleDTO {
 
-    public long id;
-    public String name;
+    private long id;
+    private String name;
 
 }

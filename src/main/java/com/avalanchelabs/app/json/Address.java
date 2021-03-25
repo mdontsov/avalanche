@@ -10,7 +10,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Address implements Serializable {
 
-    private final static long serialVersionUID = 7702L;
+    private static final long serialVersionUID = 7702L;
     private String cityName;
     private String streetName;
     private int postalCode;
