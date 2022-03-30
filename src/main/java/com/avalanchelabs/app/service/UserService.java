@@ -4,47 +4,71 @@ import com.avalanchelabs.app.entity.Role;
 import com.avalanchelabs.app.entity.User;
 import com.avalanchelabs.app.repository.RoleRepo;
 import com.avalanchelabs.app.repository.UserRepo;
-import lombok.Data;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
-@Data
 public class UserService {
 
-    @Autowired
-    private RoleRepo roleRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepo roleRepo;
+    private final UserRepo userRepo;
 
-    @Autowired
-    private UserRepo userRepo;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public UserService(RoleRepo roleRepo, UserRepo userRepo, PasswordEncoder passwordEncoder) {
-        this.roleRepo = roleRepo;
-        this.userRepo = userRepo;
-        this.passwordEncoder = passwordEncoder;
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
     }
 
-    public User saveUser(User user) {
-        Role userRole = roleRepo.findByRoleName("ROLE_USER");
+    @Autowired
+    public UserService(@Lazy PasswordEncoder passwordEncoder, @Lazy RoleRepo roleRepo, @Lazy UserRepo userRepo) {
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepo = roleRepo;
+        this.userRepo = userRepo;
+    }
+
+    public void saveUser(User user) {
+        Role userRole = roleRepo.findByName("ROLE_USER");
         user.setRole(userRole);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepo.save(user);
+        userRepo.save(user);
     }
 
     public User findByUserName(String userName) {
-        return userRepo.findByUserName(userName);
+        return userRepo.findByUsername(userName);
+    }
+
+    public Role findByRoleName(String roleName) {
+        return roleRepo.findByName(roleName);
+    }
+
+    public List<User> findUsers() {
+        return userRepo.findAll();
+    }
+
+    public void deleteUser(String username) {
+        User user = userRepo.findByUsername(username);
+        userRepo.delete(user);
+    }
+
+    public void updateUser(String oldUsername, String newUsername) {
+        User user = userRepo.findByUsername(oldUsername);
+        user.setUsername(newUsername);
+        userRepo.save(user);
+    }
+
+    public List<Role> findRoles() {
+        return roleRepo.findAll();
     }
 
     public User findByUserNameAndPassword(String userName, String password) {
         User user = findByUserName(userName);
-        if (user != null) {
-            if (passwordEncoder.matches(password, user.getPassword())) {
-                return user;
-            }
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+            return user;
         }
         return null;
     }
